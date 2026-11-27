@@ -1,0 +1,24 @@
+name: Check
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          activate-environment: true
+      - run: uv pip install -r requirements.txt
+      - name: Examples compile and start
+        env:
+          DATAGURU_API_KEY: not-a-real-key
+        run: |
+          python -m compileall -q examples
+          for f in sdk_example requests_example async_example; do
+            python examples/$f.py not-an-api 2>&1 | grep -q "Unknown API" || { echo "$f failed"; exit 1; }
+          done
+          scrapy runspider examples/scrapy_spider.py -a apis=not-an-api 2>&1 | grep -q "Unknown API" || { echo "scrapy failed"; exit 1; }

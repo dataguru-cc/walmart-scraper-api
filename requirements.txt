@@ -1,0 +1,4 @@
+dataguru-sdk>=0.1.2
+requests>=2.28
+httpx>=0.24
+scrapy>=2.11
